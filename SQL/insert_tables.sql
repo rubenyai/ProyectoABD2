@@ -24,4 +24,20 @@ INSERT INTO naturalezas VALUES(4,'fosil','patatas fritas','hamburguesas',80,'nin
 INSERT INTO naturalezas VALUES(5,'npi1','patatas fritas','hamburguesas',80,'ninguna');
 INSERT INTO naturalezas VALUES(6,'npi2','patatas fritas','hamburguesas',80,'ninguna');
 
-INSERT INTO evoluciones VALUES(1,1,'greymon','por emblema','champion',1000,500,500,500,500);
+INSERT INTO habilidades VALUES(1,1,1,'patada','ninguna');
+INSERT INTO habilidades VALUES(2,2,1,'super patada','ninguna');
+INSERT INTO habilidades VALUES(3,3,1,'super mega patada','ninguna');
+INSERT INTO habilidades VALUES(4,4,1,'ultra patada','ninguna');
+INSERT INTO habilidades VALUES(5,5,1,'ultra mega patada','ninguna');
+
+INSERT INTO evoluciones VALUES(1,1,'greymon tipo 1','por entrenamiento','champion',1000,500,500,500,500);
+INSERT INTO evoluciones VALUES(2,1,'greymon tipo 2','por emblema','ultra',1000,500,500,500,500);
+INSERT INTO evoluciones VALUES(3,1,'greymon tipo 3','por estadistica','mega',1000,500,500,500,500);
+INSERT INTO evoluciones VALUES(4,1,'greymon tipo 4','por ambiente','matrix',1000,500,500,500,500);
+INSERT INTO evoluciones VALUES(5,1,'greymon tipo 5','por emociones','spirit',1000,500,500,500,500);
+
+INSERT INTO tipos VALUES(1,'agua','ninguna');
+INSERT INTO tipos VALUES(2,'naturaleza','ninguna');
+INSERT INTO tipos VALUES(3,'oscuridad','ninguna');
+INSERT INTO tipos VALUES(4,'luz','ninguna');
+INSERT INTO tipos VALUES(5,'fuego','ninguna');

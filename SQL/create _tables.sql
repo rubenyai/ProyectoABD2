@@ -41,6 +41,8 @@ create index entrenadores_nombre_indx
   tablespace tbp_indice;
 
 alter table entrenadores add primary key (id_entrenador);
+alter table entrenadores add constraint chk_email check (correo like '%_@__%.__%')
+
 
 create table ciudades(
   id_ciudad number,
@@ -67,6 +69,7 @@ create index ciudades_pais_indx
   tablespace tbp_indice;
 
 alter table ciudades add primary key (id_ciudad);
+alter table entrenadores add foreign key(id_ciudad) references ciudades (id_ciudad);
 
 create table digimons(
   id_digimon number,
@@ -93,6 +96,8 @@ create index digimons_nombre_indx
   tablespace tbp_indice;
 
 alter table digimons add primary key (id_digimon);
+alter table digimons add foreign key(id_entrenador) references entrenadores (id_entrenador);
+
 
 create table naturalezas(
   id_naturaleza number,
@@ -112,6 +117,7 @@ create index naturalezas_nombre_indx
   tablespace tbp_indice;
 
 alter table naturalezas add primary key (id_naturaleza);
+alter table digimons add foreign key(id_naturaleza) references naturalezas (id_naturaleza);
 
 create table habilidades(
   id_habilidad number,
@@ -130,6 +136,8 @@ create index habilidades_nombre_indx
   tablespace tbp_indice;
 
 alter table habilidades add primary key (id_habilidad);
+alter table habilidades add foreign key(id_digimon) references digimons (id_digimon);
+
 
 create table evoluciones(
   id_evolucion number,
@@ -153,6 +161,7 @@ create index evoluciones_nombre_indx
   tablespace tbp_indice;
 
 alter table evoluciones add primary key (id_evolucion);
+alter table evoluciones add foreign key(id_digimon) references digimons (id_digimon);
 
 create table tipos(
   id_tipo number,
@@ -169,6 +178,7 @@ create index tipos_nombre_indx
   tablespace tbp_indice;
 
 alter table tipos add primary key (id_tipo);
+alter table digimons add foreign key(id_tipo) references tipos (id_tipo);
 
 create role registrador;
 grant insert, update, delete on entrenadores to registrador;
@@ -189,7 +199,7 @@ grant select on evoluciones to moderador;
 grant select on tipos to moderador;
 
 create role administrador;
-grant select, insert, update, delete on entrenadores to administrador with grant option;
+grant select, insert, update, delete on entrenadores to administrador;
 grant select, insert, update, delete on ciudades to administrador;
 grant select, insert, update, delete on digimons to administrador;
 grant select, insert, update, delete on naturalezas to administrador;
