@@ -207,14 +207,14 @@ alter table repositorio.tipos add constraint tiposnombre_chk check (nombre in ('
 
 
 create role registrador;
-grant insert, update, delete on repositorio.entrenadores to registrador;
-grant insert, update, delete on repositorio.paises to registrador;
-grant insert, update, delete on repositorio.ciudades to registrador;
-grant insert, update, delete on repositorio.digimons to registrador;
-grant insert, update, delete on repositorio.naturalezas to registrador;
-grant insert, update, delete on repositorio.habilidades to registrador;
-grant insert, update, delete on repositorio.evoluciones to registrador;
-grant insert, update, delete on repositorio.tipos to registrador;
+grant insert, update on repositorio.entrenadores to registrador;
+grant insert, update on repositorio.paises to registrador;
+grant insert, update on repositorio.ciudades to registrador;
+grant insert, update on repositorio.digimons to registrador;
+grant insert, update on repositorio.naturalezas to registrador;
+grant insert, update on repositorio.habilidades to registrador;
+grant insert, update on repositorio.evoluciones to registrador;
+grant insert, update on repositorio.tipos to registrador;
 
 create role moderador;
 grant select on repositorio.entrenadores to moderador;
