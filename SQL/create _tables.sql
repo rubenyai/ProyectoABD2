@@ -1,8 +1,3 @@
-DROP TABLESPACE tbp_tabla INCLUDING CONTENTS AND DATAFILES;
-DROP TABLESPACE tbp_indice INCLUDING CONTENTS AND DATAFILES;
-create tablespace tbp_tabla  datafile ‘df1_rr.dbf’ size 50M;
-create tablespace tbp_indice datafile ‘df2_rr.dbf’ size 50M;
-
 DROP USER repositorio CASCADE;
 DROP USER administra CASCADE;
 DROP USER modera CASCADE;
@@ -10,96 +5,118 @@ DROP USER registra CASCADE;
 DROP ROLE administrador CASCADE;
 DROP ROLE registrador CASCADE;
 DROP ROLE moderador CASCADE;
+DROP TABLESPACE tbp_tabla INCLUDING CONTENTS AND DATAFILES;
+DROP TABLESPACE tbp_indice INCLUDING CONTENTS AND DATAFILES;
+create tablespace tbp_tabla  datafile ‘df1_rr.dbf’ size 50M;
+create tablespace tbp_indice datafile ‘df2_rr.dbf’ size 50M;
+
 CREATE USER repositorio IDENTIFIED BY 12345;
-grant create table, create trigger, create user, create role to repositorio;
 ALTER USER repositorio QUOTA UNLIMITED ON tbp_tabla;
 ALTER USER repositorio QUOTA UNLIMITED ON tbp_indice;
+grant create table, create view to repositorio with admin option;
 
-create user registra identified by 12345 default tablespace tbp_tabla;
-create user modera identified by 12345 default tablespace tbp_tabla;
-create user administra identified by 12345 default tablespace tbp_tabla;
-grant create session to registra;
-grant create session to administra;
-grant create session to modera;
-
-create table entrenadores(
+create table repositorio.entrenadores(
   id_entrenador number,
   id_ciudad number,
   fecha_nacimiento date,
   nombre varchar2(50) not null,
   apellido varchar2(50),
   correo varchar2(50),
-  sexo varchar2(15) check (sexo in ('hombre','mujer'))
+  sexo varchar2(15)
 ) tablespace tbp_tabla;
 
 create unique index entrenadores_id_PK_indx
-  on entrenadores(id_entrenador)
+  on repositorio.entrenadores(id_entrenador)
   tablespace tbp_indice;
 
 create index entrenadores_nombre_indx
-  on entrenadores(nombre)
+  on repositorio.entrenadores(nombre)
   tablespace tbp_indice;
 
-alter table entrenadores add primary key (id_entrenador);
-alter table entrenadores add constraint chk_email check (correo like '%_@__%.__%')
+alter table repositorio.entrenadores add primary key (id_entrenador);
+alter table repositorio.entrenadores add constraint email_chk check (correo like '%_@__%.__%');
+alter table repositorio.entrenadores add constraint sexo_chk check (sexo in ('hombre','mujer'));
 
+create table repositorio.paises(
+  id_pais number,
+  nombre_spa varchar2(50) not null,
+  nombre_eng varchar2(50) not null,
+  cod_area varchar2(50)
+) tablespace tbp_tabla;
 
-create table ciudades(
+create unique index paises_id_PK_indx
+  on repositorio.paises (id_pais)
+  tablespace tbp_indice;
+
+create index paises_nombre_spa_indx
+  on repositorio.paises (nombre_spa)
+  tablespace tbp_indice;
+
+create index paises_nombre_eng_indx
+  on repositorio.paises (nombre_eng)
+  tablespace tbp_indice;
+
+alter table repositorio.paises add primary key (id_pais);
+
+create table repositorio.ciudades(
   id_ciudad number,
-  pais varchar2(50) not null,
+  id_pais number,
   nombre_spa varchar2(50) not null,
   nombre_eng varchar2(50) not null,
   cod_postal varchar2(50)
 ) tablespace tbp_tabla;
 
 create unique index ciudades_id_PK_indx
-  on ciudades (id_ciudad)
+  on repositorio.ciudades (id_ciudad)
   tablespace tbp_indice;
 
 create index ciudades_nombre_spa_indx
-  on ciudades (nombre_spa)
+  on repositorio.ciudades (nombre_spa)
   tablespace tbp_indice;
 
 create index ciudades_nombre_eng_indx
-  on ciudades (nombre_eng)
+  on repositorio.ciudades (nombre_eng)
   tablespace tbp_indice;
 
-create index ciudades_pais_indx
-  on ciudades (pais)
-  tablespace tbp_indice;
+alter table repositorio.ciudades add primary key (id_ciudad);
+alter table repositorio.entrenadores add foreign key (id_ciudad) references repositorio.ciudades (id_ciudad);
+alter table repositorio.ciudades add foreign key (id_pais) references repositorio.paises(id_pais);
 
-alter table ciudades add primary key (id_ciudad);
-alter table entrenadores add foreign key(id_ciudad) references ciudades (id_ciudad);
-
-create table digimons(
+create table repositorio.digimons(
   id_digimon number,
   id_entrenador number,
   id_naturaleza number,
   id_tipo number,
   nombre varchar2(50) not null,
-  genero varchar2(50) check (genero in ('masculino','femenino')),
-  forma varchar2(50) check (forma in ('in training','rookie','champion','ultra','mega','brust','armor','matrix','spirit')),
+  genero varchar2(50),
+  forma varchar2(50),
   fecha_liberacion date,
-  vida number check (vida >=0 and vida <=9999),
-  ataque number check (ataque >=0 and ataque <=9999),
-  defensa number check (defensa>=0 and defensa <=9999),
-  defensa_especial number check (defensa_especial >=0 and defensa_especial <=9999),
-  velocidad number check (velocidad >=0 and velocidad <=9999)
+  vida number,
+  ataque number,
+  defensa number,
+  defensa_especial number,
+  velocidad number
 ) tablespace tbp_tabla;
 
 create unique index digimons_id_PK_indx
-  on digimons (id_digimon)
+  on repositorio.digimons (id_digimon)
   tablespace tbp_indice;
 
 create index digimons_nombre_indx
-  on digimons (nombre)
+  on repositorio.digimons (nombre)
   tablespace tbp_indice;
 
-alter table digimons add primary key (id_digimon);
-alter table digimons add foreign key(id_entrenador) references entrenadores (id_entrenador);
+alter table repositorio.digimons add primary key (id_digimon);
+alter table repositorio.digimons add foreign key(id_entrenador) references repositorio.entrenadores (id_entrenador);
+alter table repositorio.digimons add constraint genero_chk check (genero in ('masculino','femenino'));
+alter table repositorio.digimons add constraint formas_chk check (forma in ('in training','rookie','champion','ultra','mega','brust','armor','matrix','spirit'));
+alter table repositorio.digimons add constraint vida_chk check (vida >=0 and vida <=9999);
+alter table repositorio.digimons add constraint ataque_chk check (ataque >=0 and ataque <=9999);
+alter table repositorio.digimons add constraint defensa_chk check (defensa >=0 and defensa <=9999);
+alter table repositorio.digimons add constraint defensaespecial_chk check (defensa_especial >=0 and defensa_especial <=9999);
+alter table repositorio.digimons add constraint velocidad_chk check (velocidad >=0 and velocidad <=9999);
 
-
-create table naturalezas(
+create table repositorio.naturalezas(
   id_naturaleza number,
   nombre varchar2(50) not null,
   beneficio varchar2(50),
@@ -109,17 +126,17 @@ create table naturalezas(
 ) tablespace tbp_tabla;
 
 create unique index naturalezas_id_PK_indx
-  on naturalezas(id_naturaleza)
+  on repositorio.naturalezas(id_naturaleza)
   tablespace tbp_indice;
 
 create index naturalezas_nombre_indx
-  on naturalezas(nombre)
+  on repositorio.naturalezas(nombre)
   tablespace tbp_indice;
 
-alter table naturalezas add primary key (id_naturaleza);
-alter table digimons add foreign key(id_naturaleza) references naturalezas (id_naturaleza);
+alter table repositorio.naturalezas add primary key (id_naturaleza);
+alter table repositorio.digimons add foreign key(id_naturaleza) references repositorio.naturalezas (id_naturaleza);
 
-create table habilidades(
+create table repositorio.habilidades(
   id_habilidad number,
   id_digimon number,
   id_evolucion number,
@@ -128,84 +145,104 @@ create table habilidades(
 ) tablespace tbp_tabla;
 
 create unique index habilidades_id_PK_indx
-  on habilidades (id_habilidad)
+  on repositorio.habilidades (id_habilidad)
   tablespace tbp_indice;
 
 create index habilidades_nombre_indx
-  on habilidades (nombre)
+  on repositorio.habilidades (nombre)
   tablespace tbp_indice;
 
-alter table habilidades add primary key (id_habilidad);
-alter table habilidades add foreign key(id_digimon) references digimons (id_digimon);
+alter table repositorio.habilidades add primary key (id_habilidad);
+alter table repositorio.habilidades add foreign key(id_digimon) references repositorio.digimons (id_digimon);
 
 
-create table evoluciones(
+create table repositorio.evoluciones(
   id_evolucion number,
   id_digimon number,
   nombre varchar2(50) not null,
-  tipo_evolucion varchar2(50) check (tipo_evolucion in ('por entrenamiento','por emblema','por estadistica','por ambiente','por emociones')),
-  forma varchar2(50) check (forma in ('in training','rookie','champion','ultra','mega','brust','armor','matrix','spirit')),
-  vida number check (vida >=0 and vida <=9999),
-  ataque number check (ataque >=0 and ataque <=9999),
-  defensa number check (defensa>=0 and defensa <=9999),
-  defensa_especial number check (defensa_especial >=0 and defensa_especial <=9999),
-  velocidad number check (velocidad >=0 and velocidad <=9999)
+  tipo_evolucion varchar2(50),
+  forma varchar2(50),
+  vida number,
+  ataque number,
+  defensa number,
+  defensa_especial number,
+  velocidad number
 ) tablespace tbp_tabla;
 
 create unique index evoluciones_id_PK_indx
-  on evoluciones (id_evolucion)
+  on repositorio.evoluciones (id_evolucion)
   tablespace tbp_indice;
 
 create index evoluciones_nombre_indx
-  on evoluciones (nombre)
+  on repositorio.evoluciones (nombre)
   tablespace tbp_indice;
 
-alter table evoluciones add primary key (id_evolucion);
-alter table evoluciones add foreign key(id_digimon) references digimons (id_digimon);
+alter table repositorio.evoluciones add primary key (id_evolucion);
+alter table repositorio.evoluciones add foreign key(id_digimon) references repositorio.digimons (id_digimon);
+alter table repositorio.evoluciones add constraint formas2_chk check (forma in ('in training','rookie','champion','ultra','mega','brust','armor','matrix','spirit'));
+alter table repositorio.evoluciones add constraint tipoevolucion_chk check (tipo_evolucion in ('por entrenamiento','por emblema','por estadistica','por ambiente','por emociones'));
+alter table repositorio.evoluciones add constraint vida2_chk check (vida >=0 and vida <=9999);
+alter table repositorio.evoluciones add constraint ataque2_chk check (ataque >=0 and ataque <=9999);
+alter table repositorio.evoluciones add constraint defensa2_chk check (defensa >=0 and defensa <=9999);
+alter table repositorio.evoluciones add constraint defensaespecial2_chk check (defensa_especial >=0 and defensa_especial <=9999);
+alter table repositorio.evoluciones add constraint velocidad2_chk check (velocidad >=0 and velocidad <=9999);
 
-create table tipos(
+create table repositorio.tipos(
   id_tipo number,
-  nombre varchar2(50) check (nombre in ('agua','fuego','viento','naturaleza','tierra','luz','oscuridad')),
+  nombre varchar2(50),
   descripcion varchar2 (100)
 ) tablespace tbp_tabla;
 
 create unique index tipos_id_PK_indx
-  on tipos (id_tipo)
+  on repositorio.tipos (id_tipo)
   tablespace tbp_indice;
 
 create index tipos_nombre_indx
-  on tipos (nombre)
+  on repositorio.tipos (nombre)
   tablespace tbp_indice;
 
-alter table tipos add primary key (id_tipo);
-alter table digimons add foreign key(id_tipo) references tipos (id_tipo);
+alter table repositorio.tipos add primary key (id_tipo);
+alter table repositorio.digimons add foreign key(id_tipo) references repositorio.tipos (id_tipo);
+alter table repositorio.tipos add constraint tiposnombre_chk check (nombre in ('agua','fuego','viento','naturaleza','tierra','luz','oscuridad'));
+
 
 create role registrador;
-grant insert, update, delete on entrenadores to registrador;
-grant insert, update, delete on ciudades to registrador;
-grant insert, update, delete on digimons to registrador;
-grant insert, update, delete on naturalezas to registrador;
-grant insert, update, delete on habilidades to registrador;
-grant insert, update, delete on evoluciones to registrador;
-grant insert, update, delete on tipos to registrador;
+grant insert, update, delete on repositorio.entrenadores to registrador;
+grant insert, update, delete on repositorio.paises to registrador;
+grant insert, update, delete on repositorio.ciudades to registrador;
+grant insert, update, delete on repositorio.digimons to registrador;
+grant insert, update, delete on repositorio.naturalezas to registrador;
+grant insert, update, delete on repositorio.habilidades to registrador;
+grant insert, update, delete on repositorio.evoluciones to registrador;
+grant insert, update, delete on repositorio.tipos to registrador;
 
 create role moderador;
-grant select on entrenadores to moderador;
-grant select on ciudades to moderador;
-grant select on digimons to moderador;
-grant select on naturalezas to moderador;
-grant select on habilidades to moderador;
-grant select on evoluciones to moderador;
-grant select on tipos to moderador;
+grant select on repositorio.entrenadores to moderador;
+grant select on repositorio.paises to moderador;
+grant select on repositorio.ciudades to moderador;
+grant select on repositorio.digimons to moderador;
+grant select on repositorio.naturalezas to moderador;
+grant select on repositorio.habilidades to moderador;
+grant select on repositorio.evoluciones to moderador;
+grant select on repositorio.tipos to moderador;
 
 create role administrador;
-grant select, insert, update, delete on entrenadores to administrador;
-grant select, insert, update, delete on ciudades to administrador;
-grant select, insert, update, delete on digimons to administrador;
-grant select, insert, update, delete on naturalezas to administrador;
-grant select, insert, update, delete on habilidades to administrador;
-grant select, insert, update, delete on evoluciones to administrador;
-grant select, insert, update, delete on tipos to administrador;
+grant select, insert, update, delete on repositorio.entrenadores to administrador;
+grant select, insert, update, delete on repositorio.paises to administrador;
+grant select, insert, update, delete on repositorio.ciudades to administrador;
+grant select, insert, update, delete on repositorio.digimons to administrador;
+grant select, insert, update, delete on repositorio.naturalezas to administrador;
+grant select, insert, update, delete on repositorio.habilidades to administrador;
+grant select, insert, update, delete on repositorio.evoluciones to administrador;
+grant select, insert, update, delete on repositorio.tipos to administrador;
+
+create user registra identified by 12345 default tablespace tbp_tabla;
+create user modera identified by 12345 default tablespace tbp_tabla;
+create user administra identified by 12345 default tablespace tbp_tabla;
+
+grant create session, create view to registra with admin option;
+grant create session, create view to administra with admin option;
+grant create session, create view to modera with admin option;
 
 grant moderador to modera;
 grant administrador to administra;
